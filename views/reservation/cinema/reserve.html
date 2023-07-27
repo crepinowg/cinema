@@ -1,0 +1,169 @@
+{{extend 'reservation_base_layout.html'}}
+
+{{block header}}
+<style type="text/css">
+  .small_affiche:not(:first-of-type) {
+    margin-left: 0px;
+  }
+
+   .small_affiche {
+        cursor: pointer;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+        width: 220px;
+        text-align: center;
+        margin-top: 30px;
+      }
+      .small_affiche .fadedbox {
+        background-color: black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #fff;
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        transition: all 300ms ease-out;
+        opacity: 0;
+        width: 220px; height: 300px;
+        padding: 20px;
+        padding-top: 100px;
+      }
+      .small_affiche:hover .fadedbox {
+        opacity: 0.8;
+      }
+      .small_affiche .text {
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        transition: all 300ms ease-out;
+        transform: translateY(30px);
+        -webkit-transform: translateY(30px);
+      }
+      .small_affiche .title {
+        text-transform: uppercase;
+        opacity: 0;
+        transition-delay: 0.2s;
+        transition-duration: 0.3s;
+      }
+      .small_affiche:hover .title,
+      .small_affiche:focus .title {
+        opacity: 1;
+        transform: translateY(0px);
+        -webkit-transform: translateY(0px);
+      }
+</style>
+{{end}}
+
+{{block content}}
+<div class="p-5">
+
+  <div class="text-left">
+    <h4>Reservation: {{=affiche.film.titre}}</h4>
+    <p class="text-muted muted">Enrégistrement d'une réservation</p>
+  </div>
+  <div class="text-center">
+    <div class="text-right">
+      <button type="button" class="btn btn-dark disabled" data-toggle="modal" data-target="#exampleModal">
+        
+      </button>
+
+
+      <div style="display: none;">
+        <p class="alert alert-success" role="alert">{{=response.flash}}</p>
+      </div>
+      <div class="" id="affiches_container"
+        style="margin-top: 20px; display: flex; flex-direction: row; flex-wrap: wrap;
+        justify-content: space-around;">
+       
+
+        <div class="small_affiche small_affiche-{{=affiche.affiche.id}}" data-affiche="{{=affiche.affiche.id}}">
+        <div style="width: 220px; height: 300px; margin-top: 0px;" > 
+          <img width="220px" height="300px" src="/{{=request.application}}/default/download/{{=affiche.affiche.image}}" />
+          <div class="fadedbox">
+            <h4 class="title text">{{=affiche.film.titre}}</h4>
+            <table style="width: 100%; margin-top: 20px; font-size: 0.9em">
+              <tbody >
+                <tr >
+                  <td class="text-left">Durée</td>
+                  <td class="text-right">{{=affiche.film.duree}}</td>
+                </tr>
+                <tr>
+                  <td class="text-left">Réalisateur</td>
+                  <td class="text-right">{{=affiche.film.realisateur}}</td>
+                </tr>
+              </tbody>
+            </table>
+            
+          </div>          
+        </div>
+      </div>
+
+      </div>
+
+      <div style="margin-top: 0px; display: flex; flex-direction: row;
+        justify-content: space-around;">
+        <div class="mt-5">
+              <div class="mb-2" style="display: flex; flex-direction: row; align-items: center;">
+                <input type="number" name="place_input" class="form-control" placeholder="place">
+                <span class="ml-2"> Places</span>
+              </div>
+              <button style="width: 260px" id="save-btn" class="btn btn-success affiche-delete-btn" data-affiche="{{=affiche.affiche.id}}">Réserver</button>
+
+            </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{{end}}
+
+
+{{block javascripts}}
+<script type="text/javascript">
+  jQuery(document).ready(function(){
+
+    $("#save-btn").on('click', function(e){
+      e.preventDefault();
+
+      const place = $("input[name='place_input'").val();
+      const affiche_id = $(this).attr("data-affiche");
+
+      saveReservation(place, affiche_id, function(err, res){
+        console.log(err, res);
+        if (err == null){
+          console.log("Saved reservation ok");
+          //location.reload();
+          setTimeout(function(){ window.history.back(); }, 100);
+        }
+      });
+    });
+
+
+
+    /**
+     * 
+     */
+    function saveReservation(place, afficheId, callback){
+      const o = {place: place, affiche_id: afficheId};
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log("Save reservation ...");
+          callback(null, true);
+        }
+      };
+
+      req.open("POST", window.BASE_URL + `/reservations`, true);
+      req.setRequestHeader("Content-Type", "application/json");
+      req.send(JSON.stringify(o));
+    }
+
+   
+
+  });
+</script>
+{{end}}

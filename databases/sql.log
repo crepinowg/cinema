@@ -1,0 +1,223 @@
+timestamp: 2022-02-22T20:27:39.244499
+CREATE TABLE "auth_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "first_name" CHAR(128),
+    "last_name" CHAR(128),
+    "email" CHAR(512),
+    "password" CHAR(512),
+    "registration_key" CHAR(512),
+    "reset_password_key" CHAR(512),
+    "registration_id" CHAR(512)
+);
+success!
+timestamp: 2022-02-22T20:27:39.340666
+CREATE TABLE "auth_group"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "role" CHAR(512),
+    "description" TEXT
+);
+success!
+timestamp: 2022-02-22T20:27:39.423956
+CREATE TABLE "auth_membership"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "group_id" INTEGER REFERENCES "auth_group" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2022-02-22T20:27:39.528513
+CREATE TABLE "auth_permission"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "group_id" INTEGER REFERENCES "auth_group" ("id") ON DELETE CASCADE  ,
+    "name" CHAR(512),
+    "table_name" CHAR(512),
+    "record_id" INTEGER
+);
+success!
+timestamp: 2022-02-22T20:27:39.658355
+CREATE TABLE "auth_event"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "time_stamp" TIMESTAMP,
+    "client_ip" CHAR(512),
+    "user_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "origin" CHAR(512),
+    "description" TEXT
+);
+success!
+timestamp: 2022-02-22T20:27:39.754180
+CREATE TABLE "auth_cas"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "created_on" TIMESTAMP,
+    "service" CHAR(512),
+    "ticket" CHAR(512),
+    "renew" CHAR(1)
+);
+success!
+timestamp: 2022-03-29T18:16:26.124118
+CREATE TABLE "film"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "titre" CHAR(512),
+    "realisateur" CHAR(512),
+    "duree" TIME
+);
+success!
+timestamp: 2022-03-29T18:16:26.410913
+CREATE TABLE "affiche"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "created" TIMESTAMP,
+    "film" INTEGER REFERENCES "film" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2022-03-29T18:16:26.555209
+CREATE TABLE "reservation"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "places" INTEGER,
+    "affiche" INTEGER REFERENCES "affiche" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2022-03-29T18:20:39.837956
+CREATE TABLE `film`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `titre` VARCHAR(512) NOT NULL,
+    `realisateur` VARCHAR(512),
+    `duree` TIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+timestamp: 2022-03-29T18:21:18.293357
+CREATE TABLE `film`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `titre` VARCHAR(512) NOT NULL,
+    `realisateur` VARCHAR(512),
+    `duree` TIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+timestamp: 2022-03-29T18:21:54.499607
+CREATE TABLE `film`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `titre` VARCHAR(512) NOT NULL,
+    `realisateur` VARCHAR(512),
+    `duree` TIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-03-29T18:21:54.833533
+CREATE TABLE `affiche`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `created` DATETIME,
+    `image` VARCHAR(512) NOT NULL,
+    `film` INT  , INDEX `film__idx` (`film`), FOREIGN KEY (`film`) REFERENCES `film` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-03-29T18:21:55.099395
+CREATE TABLE `reservation`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `places` INTEGER NOT NULL,
+    `affiche` INT  , INDEX `affiche__idx` (`affiche`), FOREIGN KEY (`affiche`) REFERENCES `affiche` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T00:56:34.469789
+CREATE TABLE `auth_user`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `first_name` VARCHAR(128),
+    `last_name` VARCHAR(128),
+    `email` VARCHAR(512),
+    `username` VARCHAR(128),
+    `password` VARCHAR(512),
+    `registration_key` VARCHAR(512),
+    `reset_password_key` VARCHAR(512),
+    `registration_id` VARCHAR(512),
+    `is_active` CHAR(1),
+    `created_on` DATETIME,
+    `created_by` INT  , INDEX `created_by__idx` (`created_by`), FOREIGN KEY (`created_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `modified_on` DATETIME,
+    `modified_by` INT  , INDEX `modified_by__idx` (`modified_by`), FOREIGN KEY (`modified_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T00:56:34.549796
+CREATE TABLE `auth_group`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `role` VARCHAR(512),
+    `description` LONGTEXT,
+    `is_active` CHAR(1),
+    `created_on` DATETIME,
+    `created_by` INT  , INDEX `created_by__idx` (`created_by`), FOREIGN KEY (`created_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `modified_on` DATETIME,
+    `modified_by` INT  , INDEX `modified_by__idx` (`modified_by`), FOREIGN KEY (`modified_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T00:56:34.606862
+CREATE TABLE `auth_membership`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `user_id` INT  , INDEX `user_id__idx` (`user_id`), FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `group_id` INT  , INDEX `group_id__idx` (`group_id`), FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`) ON DELETE CASCADE,
+    `is_active` CHAR(1),
+    `created_on` DATETIME,
+    `created_by` INT  , INDEX `created_by__idx` (`created_by`), FOREIGN KEY (`created_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `modified_on` DATETIME,
+    `modified_by` INT  , INDEX `modified_by__idx` (`modified_by`), FOREIGN KEY (`modified_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T00:56:34.663067
+CREATE TABLE `auth_permission`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `group_id` INT  , INDEX `group_id__idx` (`group_id`), FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`) ON DELETE CASCADE,
+    `name` VARCHAR(512),
+    `table_name` VARCHAR(512),
+    `record_id` INTEGER,
+    `is_active` CHAR(1),
+    `created_on` DATETIME,
+    `created_by` INT  , INDEX `created_by__idx` (`created_by`), FOREIGN KEY (`created_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `modified_on` DATETIME,
+    `modified_by` INT  , INDEX `modified_by__idx` (`modified_by`), FOREIGN KEY (`modified_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T00:56:34.716958
+CREATE TABLE `auth_event`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `time_stamp` DATETIME,
+    `client_ip` VARCHAR(512),
+    `user_id` INT  , INDEX `user_id__idx` (`user_id`), FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `origin` VARCHAR(512),
+    `description` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T00:56:34.762819
+CREATE TABLE `auth_cas`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `user_id` INT  , INDEX `user_id__idx` (`user_id`), FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `created_on` DATETIME,
+    `service` VARCHAR(512),
+    `ticket` VARCHAR(512),
+    `renew` CHAR(1),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+success!
+timestamp: 2022-06-11T03:50:12.468350
+ALTER TABLE `reservation` ADD `user` INTEGER NOT NULL;
+success!
+success!
+timestamp: 2022-06-11T19:28:10.019091
+CREATE TABLE `auth_user`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `first_name` VARCHAR(128),
+    `last_name` VARCHAR(128),
+    `email` VARCHAR(512),
+    `username` VARCHAR(128),
+    `password` VARCHAR(512),
+    `registration_key` VARCHAR(512),
+    `reset_password_key` VARCHAR(512),
+    `registration_id` VARCHAR(512),
+    `is_active` CHAR(1),
+    `created_on` DATETIME,
+    `created_by` INT  , INDEX `created_by__idx` (`created_by`), FOREIGN KEY (`created_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `modified_on` DATETIME,
+    `modified_by` INT  , INDEX `modified_by__idx` (`modified_by`), FOREIGN KEY (`modified_by`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;

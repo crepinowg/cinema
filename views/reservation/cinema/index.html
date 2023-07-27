@@ -1,0 +1,179 @@
+{{extend 'reservation_base_layout.html'}}
+
+{{block header}}
+<style type="text/css">
+  .small_affiche:not(:first-of-type) {
+    margin-left: 0px;
+  }
+
+   .small_affiche {
+        cursor: pointer;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+        width: 220px;
+        text-align: center;
+        margin-top: 30px;
+      }
+      .small_affiche .fadedbox {
+        background-color: black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #fff;
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        transition: all 300ms ease-out;
+        opacity: 0;
+        width: 220px; height: 300px;
+        padding: 20px;
+        padding-top: 50px;
+      }
+      .small_affiche:hover .fadedbox {
+        opacity: 0.8;
+      }
+      .small_affiche .text {
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        transition: all 300ms ease-out;
+        transform: translateY(30px);
+        -webkit-transform: translateY(30px);
+      }
+      .small_affiche .title {
+        text-transform: uppercase;
+        opacity: 0;
+        transition-delay: 0.2s;
+        transition-duration: 0.3s;
+      }
+      .small_affiche:hover .title,
+      .small_affiche:focus .title {
+        opacity: 1;
+        transform: translateY(0px);
+        -webkit-transform: translateY(0px);
+      }
+</style>
+{{end}}
+
+{{block content}}
+<div class="p-5">
+
+  <div class="text-left">
+    <h4>Prochainement</h4>
+    <p class="text-muted muted">Les prochains films qui seront diffusé dans nos différentes salles</p>
+  </div>
+  <div class="text-center">
+    <div class="text-right">
+      <button type="button" class="btn btn-dark disabled" data-toggle="modal" data-target="#exampleModal">
+        
+      </button>
+
+
+      <div style="display: none;">
+        <p class="alert alert-success" role="alert">{{=response.flash}}</p>
+      </div>
+      <div class="" id="affiches_container"
+        style="margin-top: 20px; display: flex; flex-direction: row; flex-wrap: wrap;
+        justify-content: space-between;">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+
+{{block javascripts}}
+<script type="text/javascript">
+  jQuery(document).ready(function(){
+    const table_data = [];
+    let SELECTED_ID = -1;
+
+
+
+    //Load the films
+    getAffiches(1);
+
+
+    function formatAfficheTemplate(affiche){
+      return `
+      <div class="small_affiche small_affiche-${affiche.affiche.id}" data-affiche="${affiche.affiche.id}">
+        <div style="width: 220px; height: 300px; margin-top: 0px;" > 
+          <img width="220px" height="300px" src="/${window.APP_NAME}/default/download/${affiche.affiche.image}" />
+          <div class="fadedbox">
+            <h4 class="title text">${affiche.film.titre}</h4>
+            <table style="width: 100%; margin-top: 20px; font-size: 0.9em">
+              <tbody >
+                <tr >
+                  <td class="text-left">Durée</td>
+                  <td class="text-right">${affiche.film.duree}</td>
+                </tr>
+                <tr>
+                  <td class="text-left">Réalisateur</td>
+                  <td class="text-right">${affiche.film.realisateur}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="mt-5" style="opacity: 1">
+              <a class="btn btn-success w-100 affiche-delete-btn" style="opacity: 1"
+                href="/${window.APP_NAME}/cinema/reserve/${affiche.affiche.id}" data-affiche="${affiche.affiche.id}">Réserver</a>
+            </div>
+          </div>          
+        </div>
+      </div>
+      `;
+    }
+
+
+    /**
+     * @param page
+     */
+    function getAffiches(page){
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          const affiches = JSON.parse(this.responseText);
+          console.log(affiches);
+          //table_data.push(...films.map( f => { return {...f, action: "" } } ));
+
+          affiches.forEach(aff => {
+            let c = formatAfficheTemplate(aff);
+
+            $("#affiches_container").append(c);
+          });
+
+          
+          //console.log(table_data);
+          //console.log(table);
+          //table.draw();
+         }
+      };
+
+      req.open("GET", window.BASE_URL + `/affiches?page=${page}`, true);
+      req.send();
+    }
+
+    /**
+     * 
+     */
+    function saveAffiche(formData, callback){
+      
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log("Save affiche ...");
+          callback(null, true);
+        }
+      };
+
+      req.open("POST", window.BASE_URL + `/affiches`, true);
+      //req.setRequestHeader("Content-Type", "application/json");
+      req.send(formData);
+    }
+
+  });
+</script>
+{{end}}

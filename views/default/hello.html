@@ -1,0 +1,33 @@
+sdsdsd
+
+{{ for f in fruits: }}
+    <b>{{=f}}</b>
+{{ pass }}
+
+
+{{ for f in numbers: }}
+    <li><b>{{=f}}</b> 
+        {{if f % 2 == 1:}}
+            <span>Impair</span>
+        {{else:}}
+            <span>Pair</span>
+        {{pass}}
+    </li>
+{{ pass }}
+
+<p>
+    Somme = {{=somme}}
+</p>
+
+<div style="margin-top: 100px;">
+    <form action="">
+        <input name="nom" value="test" />
+        <input type="submit" value="submit">
+    </form>
+</div>
+
+<div>
+    <h6>From Form</h6>
+    {{=input}}
+    {{=BEAUTIFY(request.vars.nom)}}
+</div>

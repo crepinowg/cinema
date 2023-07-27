@@ -1,0 +1,93 @@
+<div style="position: fixed; top: 0; z-index: 1000; width: 100%;" id="main-nav-container" >
+  <nav id="main-nav" class="navbar navbar-expand-lg navbar navbar-dark bg-dark sticky fixed" style="z-index: 1000;background-color: #16181d !important; border-bottom: 1px solid #313232; font-weight: bold;">
+    <a class="navbar-brand" href="/{{=request.application}}">Cinéma</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        {{if auth.user:}}
+          {{if auth.has_membership("administrators"):}}
+            <!-- For admin -->
+            <li class="nav-item active">
+              <a class="nav-link btn btn-outline-success disabled" href="{{=URL('reservation','index')}}">
+                BackOffice <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: white" href="{{=URL('office', 'films')}}">Films</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: white" href="{{=URL('office', 'affiches')}}">Affiches</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: white" href="{{=URL('office','reservations')}}">Réservations</a>
+            </li>
+          {{else:}}
+
+            <!-- For logged user -->
+            <li class="nav-item">
+              <a class="nav-link" style="color: white" href="{{=URL('cinema','films')}}">Films</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: white" href="{{=URL('cinema','reservations')}}">Mes réservations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: white" href="{{=URL('default', 'about')}}">A Propos</a>
+            </li>
+          {{pass}}
+        {{else:}}
+          <li class="nav-ite ml-5">
+            <a class="nav-link" style="color: white" href="{{=URL('cinema', 'films')}}">Films</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" style="color: white" href="{{=URL('default', 'about')}}">A Propos</a>
+          </li>
+        {{pass}}
+      </ul>
+      <span class="navbar-text">
+        {{if 'auth' in globals():}}
+          <ul class="nav navbar-nav ml-auto w-100 justify-content-end">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{if auth.user:}}
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                      <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                    {{=auth.user.username}}
+                  </span>
+                {{else:}}
+                  <span class="btn btn-danger">S'abonner</span>
+                {{pass}}
+              </a>
+
+              
+              <div id="custom_a" class="dropdown-menu dropdown-menu-right bg-dark" style="color: white !important">
+                {{if auth.user:}}
+                  <a class="dropdown-item" href="{{=URL('user','profile')}}">Mon Profile</a>
+                  {{if 'change_password' not in auth.settings.actions_disabled:}}
+                    <a class="dropdown-item" href="{{=URL('user','change_password')}}">Modifier Mot de passe</a>
+                  {{pass}}
+                
+                  <a class="dropdown-item" href="{{=URL('default','user/logout')}}">Déconnexion</a>
+                {{else:}}
+                  <a class="dropdown-item" href="{{=URL('auth','login')}}">Conexion</a>
+                  {{if 'register' not in auth.settings.actions_disabled:}}
+                    <a class="dropdown-item" href="{{=URL('auth','register')}}">S'inscrire</a>
+                  {{pass}}
+                
+                  <!--{{if 'retrieve_password' not in auth.settings.actions_disabled:}}
+                    <a class="dropdown-item" href="{{=URL('default','user/retrieve_password')}}">{{=T('Lost Password')}}</a>
+                  {{pass}}-->
+                {{pass}}
+              </div>
+            </li>
+          </ul>
+        {{pass}}
+      </span>
+    </div>
+  </nav>
+</div>

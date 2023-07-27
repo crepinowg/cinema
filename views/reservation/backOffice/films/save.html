@@ -1,0 +1,24 @@
+{{extend 'reservation_base_layout.html'}}
+
+
+{{block content}}
+<div class="row p-5">
+    <div class="col-md-10 text-center">
+      <form action="POST">
+          <div class="form-group">
+            <label for="titre">Titre: *</label>
+            <input type="text" required class="form-control" id="titre" aria-describedby="emailHelp" placeholder="le titre du film">
+          </div>
+          <div class="form-group">
+            <label for="realisateur">Réalisateur: *</label>
+            <input type="text" required class="form-control" id="realisateur" aria-describedby="emailHelp" placeholder="le réalisateur du film">
+          </div>
+          <div class="form-group">
+            <label for="duree">Duree: *</label>
+            <input type="text" required class="form-control" id="duree" aria-describedby="emailHelp" placeholder="le titre du film">
+          </div>
+          <button type="submit" class="btn btn-primary">Enrégistrer</button>
+        </form>
+    </div>
+</div>
+{{end}}

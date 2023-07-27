@@ -1,0 +1,290 @@
+{{extend 'reservation_base_layout.html'}}
+
+{{block header}}
+<style type="text/css">
+  .small_affiche:not(:first-of-type) {
+    margin-left: 0px;
+  }
+
+   .small_affiche {
+        cursor: pointer;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+        width: 220px;
+        text-align: center;
+        margin-top: 30px;
+      }
+      .small_affiche .fadedbox {
+        background-color: black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #fff;
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        transition: all 300ms ease-out;
+        opacity: 0;
+        width: 220px; height: 300px;
+        padding: 20px;
+        padding-top: 50px;
+      }
+      .small_affiche:hover .fadedbox {
+        opacity: 0.8;
+      }
+      .small_affiche .text {
+        -webkit-transition: all 300ms ease-out;
+        -moz-transition: all 300ms ease-out;
+        -o-transition: all 300ms ease-out;
+        -ms-transition: all 300ms ease-out;
+        transition: all 300ms ease-out;
+        transform: translateY(30px);
+        -webkit-transform: translateY(30px);
+      }
+      .small_affiche .title {
+        text-transform: uppercase;
+        opacity: 0;
+        transition-delay: 0.2s;
+        transition-duration: 0.3s;
+      }
+      .small_affiche:hover .title,
+      .small_affiche:focus .title {
+        opacity: 1;
+        transform: translateY(0px);
+        -webkit-transform: translateY(0px);
+      }
+</style>
+{{end}}
+
+{{block content}}
+<div class="p-5">
+
+  <div class="text-left">
+    <h4>Affiches de film</h4>
+    <p class="text-muted muted">Les affiches de films serviront de base pour la réservation lors des visites</p>
+  </div>
+  <div class="text-center">
+    <div class="text-right">
+      <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModal">
+        + Nouvelle Affiche
+      </button>
+
+
+      <div style="display: none;">
+        <p class="alert alert-success" role="alert">{{=response.flash}}</p>
+      </div>
+      <div class="" id="affiches_container"
+        style="margin-top: 20px; display: flex; flex-direction: row; flex-wrap: wrap;
+        justify-content: space-between;">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+
+{{block modals}}
+<!-- Modal -->
+<div class="modal fadetext-white" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" style="background-color: #16181d !important; color: white">
+      <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">Enrégistrement Affiche</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="modal-body">
+         <form enctype="multipart/form-data" method="POST" id="affiche_form">
+            <div class="form-group">
+              <label for="film">Film: *</label>
+              <select class="form-control" id="film" name="film">
+                {{for film in films:}}
+                  <option value="{{=film.id}}">{{=film.titre}}</option>
+                {{pass}}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="image">Image: *</label>
+              <input type="file" class="form-control-file" id="image" name="image">
+            </div>
+            <button type="submit" id="save-btn" class="btn btn-dark">Enrégistrer</button>
+          </form>
+        </div>
+    </div>
+  </div>
+</div>
+
+{{end}}
+
+{{block javascripts}}
+<script type="text/javascript">
+  jQuery(document).ready(function(){
+    const table_data = [];
+    let SELECTED_ID = -1;
+
+
+
+    //Load the films
+    getAffiches(1);
+
+    $("#save-btn").on('click', function(e){
+      e.preventDefault();
+
+      var formData = new FormData( document.getElementById("affiche_form") );
+
+      saveAffiche(formData, function(err, res){
+        console.log(err, res);
+        if (err == null){
+          console.log("Saved Affuche");
+          //location.reload();
+          $("#exampleModal").modal("hide");
+          setTimeout(function(){ window.location.reload(); }, 1000);
+        }
+      });
+    });
+
+
+    /*$("#affiches_container").on('click', ".small_affiche", function(e){
+      //$("modal").modal("hide");
+      //$("#afModal").modal("show");
+    });*/
+
+
+    $("html").on('click', '.affiche-delete-btn', function(e){
+      e.preventDefault();
+
+      let afficheId = $(this).attr("data-affiche");
+      console.log(afficheId);
+
+      $("html").css("cursor", "wait");
+
+      deleteAffiche(afficheId, function(err, res){
+        if (err == null){
+          console.log("Afficje supprimée");
+
+          $(`.small_affiche-${afficheId}`).fadeOut(2000, "swing", function(){
+            $("html").css("cursor", "default");
+            $(this).remove();
+          })
+        }
+      });
+    });
+
+
+
+
+    function formatAfficheTemplate(affiche){
+      return `
+      <div class="small_affiche small_affiche-${affiche.affiche.id}" data-affiche="${affiche.affiche.id}">
+        <div style="width: 220px; height: 300px; margin-top: 0px;" > 
+          <img width="220px" height="300px" src="/${window.APP_NAME}/default/download/${affiche.affiche.image}" />
+          <div class="fadedbox">
+            <h4 class="title text">${affiche.film.titre}</h4>
+            <table style="width: 100%; margin-top: 20px; font-size: 0.9em">
+              <tbody >
+                <tr >
+                  <td class="text-left">Durée</td>
+                  <td class="text-right">${affiche.film.duree}</td>
+                </tr>
+                <tr>
+                  <td class="text-left">Réalisateur</td>
+                  <td class="text-right">${affiche.film.realisateur}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="mt-5">
+              <button class="btn btn-danger w-100 affiche-delete-btn" data-affiche="${affiche.affiche.id}">Supprimer</button>
+            </div>
+          </div>          
+        </div>
+      </div>
+      `;
+    }
+
+
+    /**
+     * @param page
+     */
+    function getAffiches(page){
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          const affiches = JSON.parse(this.responseText);
+          console.log(affiches);
+          //table_data.push(...films.map( f => { return {...f, action: "" } } ));
+
+          affiches.forEach(aff => {
+            let c = formatAfficheTemplate(aff);
+
+            $("#affiches_container").append(c);
+          });
+
+          
+          //console.log(table_data);
+          //console.log(table);
+          //table.draw();
+         }
+      };
+
+      req.open("GET", window.BASE_URL + `/affiches?page=${page}`, true);
+      req.send();
+    }
+
+    /**
+     * 
+     */
+    function saveAffiche(formData, callback){
+      
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log("Save affiche ...");
+          callback(null, true);
+        }
+      };
+
+      req.open("POST", window.BASE_URL + `/affiches`, true);
+      //req.setRequestHeader("Content-Type", "application/json");
+      req.send(formData);
+    }
+
+    /**
+     * 
+     */
+    function updateAffiche(afficheId, formData, callback){
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+
+          callback(null, true);
+        } else {
+          console.log(this.responseText);
+        }
+      };
+
+      req.open("PUT", window.BASE_URL + `/affiches/${afficheId}`, true);
+      req.send(formData);
+    }
+
+    /**
+     *
+     */
+    function deleteAffiche(afficheId, callback){
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          callback(null, true);
+        }
+      };
+
+      req.open("DELETE", window.BASE_URL + `/affiches/${afficheId}`, true);
+      req.send(null);
+    }
+
+  });
+</script>
+{{end}}

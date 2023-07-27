@@ -1,0 +1,38 @@
+{{extend 'reservation_auth_base_layout.html'}}
+
+{{block header}}
+<style type="text/css">
+  
+</style>
+{{end}} 
+
+{{block content}}
+<div class="p-5">
+  
+  <div class="row mt-5 mb-5 ">
+    <div class="col-md-4 mx-auto text-center">
+      <h4>Cinéma - Connexion</h4>
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col-md-4 mx-auto" style="border-radius: 10px; 
+    background-color: white; padding: 20px; color: black">
+      {{=form}} 
+    </div>
+
+    <div id="web2py_user_form" style="display: none;">
+  {{=form}}
+  {{if request.args(0)=='login':}}
+    {{if not 'register' in auth.settings.actions_disabled:}}
+      <br/><a href="{{=URL(args='register')}}">register</a>
+    {{pass}}
+    {{if not 'request_reset_password' in auth.settings.actions_disabled:}}
+      <br/>
+      <a href="{{=URL(args='request_reset_password')}}">lost password</a>
+    {{pass}}
+  {{pass}}
+</div>
+  </div>
+</div>
+
+{{end}}

@@ -1,0 +1,328 @@
+{{extend 'reservation_base_layout.html'}}
+
+
+{{block content}}
+<div class="p-5">
+  <div class="">
+    <div class="text-left">
+    <h4>Films</h4>
+    <p class="text-muted muted">Les films à diffuser</p>
+  </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModal">
+        + Nouveau Film
+      </button>
+      <div style="margin-top: 20px">
+        <table id="example" class="display nowrap" style="width:100%">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Realisateur</th>
+            <th>Durée</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+  <div class="modal-content" style=" color: black !important">
+    <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Enrégistrement Film</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div class="modal-body">
+     <form onsubmit="return;">
+      <div class="form-group">
+      <label for="titre">Titre: *</label>
+      <input type="text" name="titre" required class="form-control" id="titre" aria-describedby="emailHelp" placeholder="le titre du film">
+      </div>
+      <div class="form-group">
+      <label for="realisateur">Réalisateur: *</label>
+      <input type="text" name="realisateur" required class="form-control" id="realisateur" aria-describedby="emailHelp" placeholder="le réalisateur du film">
+      </div>
+      <div class="form-group">
+      <label for="duree">Duree: *</label>
+      <input type="text" name="duree" required class="form-control" id="duree" aria-describedby="emailHelp" placeholder="--:--:--">
+      </div>
+      <button type="submit" id="save-btn" class="btn btn-primary">Enrégistrer</button>
+    </form>
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="udModal" tabindex="-1" role="dialog" aria-labelledby="udLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+  <div class="modal-content" style=" color: black !important">
+    <div class="modal-header">
+    <h5 class="modal-title" id="udModalLabel">Détail Film</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div class="modal-body">
+     <form onsubmit="return;">
+      <div class="form-group">
+      <label for="titre">Titre: *</label>
+      <input type="text" name="udtitre" required class="form-control" id="titre" aria-describedby="emailHelp" placeholder="le titre du film">
+      </div>
+      <div class="form-group">
+      <label for="realisateur">Réalisateur: *</label>
+      <input type="text" name="udrealisateur" required class="form-control" id="realisateur" aria-describedby="emailHelp" placeholder="le réalisateur du film">
+      </div>
+      <div class="form-group">
+      <label for="duree">Duree: *</label>
+      <input type="text" name="udduree" required class="form-control" id="duree" aria-describedby="emailHelp" placeholder="le titre du film">
+      </div>
+      <span>
+        <button id="update-btn" class="btn btn-primary">Mettre à jour</button>
+        <button id="delete-btn" class="btn btn-danger">Supprimer</button>
+      </span>
+    </form>
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+{{end}}
+
+{{block javascripts}}
+<script type="text/javascript">
+  jQuery(document).ready(function(){
+    const table_data = [];
+    let SELECTED_ID = -1;
+    const table = $('#example').DataTable(
+      {
+        data: table_data,
+        dom: 'Bfrtip',
+        select: true,
+        buttons: [
+            {
+                text: 'Select all',
+                action: function () {
+                    table.rows().select();
+                }
+            },
+            {
+                text: 'Select none',
+                action: function () {
+                    table.rows().deselect();
+                }
+            }
+        ],
+        columns: [
+          {
+            data: "titre",
+            render: function(data, type){
+              return data;
+            }
+          },
+          {
+            data: "realisateur",
+            render: function(data, type){
+              return data;
+            }
+          },
+          {
+            data: "duree",
+            render: function(data, type){
+              return data;
+            }
+          },
+          {
+            data: "action",
+            render: function(data, type){
+              if (type == "display")
+                return `<span>...</span>`;
+              return data;
+            }
+          },
+        ]
+      }
+    );
+
+
+    //Load the films
+    getFilms(1);
+
+    $("#save-btn").on('click', function(e){
+      e.preventDefault();
+
+      let titre = $("input[name='titre']").val();
+      let realisateur = $("input[name='realisateur']").val();
+      let duree = $("input[name='duree']").val();
+
+      saveFilm(titre, realisateur, duree, function(err, res){
+        if (err == null){
+          $("input[name='titre']").val("");
+          $("input[name='realisateur']").val("");
+          $("input[name='duree']").val("");
+
+          $("#exampleModal").modal("hide");
+        }
+      });
+    });
+
+    //Handle table row selection
+    //We filled the modal and show it with the update and delete option
+    table.on( 'select', function ( e, dt, type, indexes ) {
+      var rowData = table.rows( indexes ).data().toArray()[0];
+      console.log(rowData, $("#udModal"));
+
+      $("input[name='udtitre']").val(rowData.titre);
+      $("input[name='udrealisateur']").val(rowData.realisateur);
+      $("input[name='udduree']").val(rowData.duree);
+
+      SELECTED_ID = rowData.id;
+
+      $("#udModal").modal("show");
+      //table.rows().deselect();
+    });
+
+    //Update callback
+    $("#update-btn").on('click', function(e){
+      e.preventDefault();
+
+      const titre = $("input[name='udtitre']").val();
+      const realisateur = $("input[name='udrealisateur']").val();
+      const duree = $("input[name='udduree']").val();
+
+      updateFilm(SELECTED_ID, titre, realisateur, duree, function(err, res){
+        if (err == null){
+          const o = {id:SELECTED_ID, titre: titre, realisateur: realisateur, duree: duree, action: ""};
+          table.row().data(o).draw(); //.node();
+          console.log(table.row());
+
+          table.rows().deselect();
+          $("#udModal").modal("hide");
+          SELECTED_ID = -1;
+        }
+      });
+    });
+
+    $("#delete-btn").on('click', function(e){
+      e.preventDefault();
+
+      const titre = $("input[name='udtitre']").val();
+      const realisateur = $("input[name='udrealisateur']").val();
+      const duree = $("input[name='udduree']").val();
+
+      deleteFilm(SELECTED_ID, function(err, res){
+        if (err == null){
+          table.row().remove().draw();
+
+          table.rows().deselect();
+          $("#udModal").modal("hide");
+          SELECTED_ID = -1;
+        }
+      });
+    });
+
+
+
+    /**
+     * @param page
+     */
+    function getFilms(page){
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          const films = JSON.parse(this.responseText);
+          //table_data.push(...films.map( f => { return {...f, action: "" } } ));
+
+          films.forEach(f => {
+            let v = {...f, action: "" };
+            table_data.push(v);
+
+            table.row.add(v).draw();
+          });
+
+          
+          //console.log(table_data);
+          //console.log(table);
+          //table.draw();
+         }
+      };
+
+      req.open("GET", window.BASE_URL + `/films?page=${page}`, true);
+      req.send();
+    }
+
+    /**
+     * Save a film
+     *
+     */
+    function saveFilm(titre, realisateur, duree, callback){
+      const o = {titre: titre, realisateur: realisateur, duree: duree}
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          let v = {...o, action: ""};
+          table.row.add(v).draw();
+
+          callback(null, true);
+        }
+      };
+
+      req.open("POST", window.BASE_URL + `/films`, true);
+      req.setRequestHeader("Content-Type", "application/json");
+      req.send(JSON.stringify(o));
+    }
+
+    /**
+     * Save a film
+     *
+     */
+    function updateFilm(filmId, titre, realisateur, duree, callback){
+      const o = {titre: titre, realisateur: realisateur, duree: duree}
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+
+          callback(null, true);
+        } else {
+          console.log(this.responseText);
+        }
+      };
+
+      req.open("PUT", window.BASE_URL + `/films/${filmId}`, true);
+      req.setRequestHeader("Content-Type", "application/json");
+      req.send(JSON.stringify(o));
+    }
+
+    /**
+     * Delete a film
+     *
+     */
+    function deleteFilm(filmId, callback){
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          callback(null, true);
+        }
+      };
+
+      req.open("DELETE", window.BASE_URL + `/films/${filmId}`, true);
+      req.setRequestHeader("Content-Type", "application/json");
+      req.send(null);
+    }
+
+  });
+</script>
+{{end}}
